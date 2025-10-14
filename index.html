@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Synthwave Background Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <section class="panel">
+      <h1>Synthwave Background Generator</h1>
+      <p class="tagline">Create endless neon-drenched ambience inspired by 90s electronic music.</p>
+      <div class="controls">
+        <button id="toggle">Start</button>
+        <label>
+          Tempo
+          <input id="tempo" type="range" min="60" max="150" step="1" value="100">
+          <span id="tempo-value">100 BPM</span>
+        </label>
+        <label>
+          Intensity
+          <input id="intensity" type="range" min="0" max="100" step="1" value="65">
+          <span id="intensity-value">65%</span>
+        </label>
+        <label>
+          Waveform
+          <select id="waveform">
+            <option value="sawtooth">Sawtooth</option>
+            <option value="square">Square</option>
+            <option value="triangle">Triangle</option>
+          </select>
+        </label>
+        <label class="toggle">
+          <input id="drums-enabled" type="checkbox" checked>
+          <span>Include retro percussion</span>
+        </label>
+      </div>
+      <p class="status" id="status">Tap Start to begin.</p>
+    </section>
+  </main>
+  <footer>
+    <p>Built with the Web Audio API. Works best in Chromium-based browsers.</p>
+  </footer>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

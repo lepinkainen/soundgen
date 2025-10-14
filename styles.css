@@ -1,0 +1,131 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-size: 16px;
+  background: radial-gradient(circle at top left, #3c0c5c, #080618 55%);
+  background-attachment: fixed;
+  color: #e2d8ff;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 3rem 1.5rem 2rem;
+  backdrop-filter: blur(20px);
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.panel {
+  background: rgba(15, 8, 45, 0.75);
+  border: 1px solid rgba(134, 104, 255, 0.4);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow:
+    0 0 30px rgba(126, 88, 255, 0.35),
+    inset 0 0 10px rgba(91, 182, 255, 0.15);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(132, 89, 255, 0.7);
+}
+
+.tagline {
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  color: rgba(220, 215, 255, 0.75);
+}
+
+.controls {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+button {
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(132, 89, 255, 0.55);
+  color: #fff;
+  background: linear-gradient(135deg, #c94afb, #5f46ff);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 25px rgba(146, 93, 255, 0.6);
+  filter: brightness(1.05);
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  color: rgba(226, 216, 255, 0.8);
+}
+
+.toggle {
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+}
+
+input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+  accent-color: #a15dff;
+}
+
+select {
+  background: rgba(10, 5, 25, 0.85);
+  border: 1px solid rgba(132, 89, 255, 0.45);
+  color: inherit;
+  padding: 0.5rem;
+  border-radius: 10px;
+  font-family: inherit;
+}
+
+.status {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: rgba(189, 177, 255, 0.7);
+}
+
+footer {
+  margin-top: auto;
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(189, 177, 255, 0.5);
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 2.5rem 1rem;
+  }
+
+  .panel {
+    padding: 1.75rem;
+  }
+}
