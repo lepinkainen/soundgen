@@ -9,6 +9,60 @@ const elements = {
   status: document.getElementById('status'),
 };
 
+const WAVEFORMS = ['sawtooth', 'square', 'triangle'];
+
+function parseSettingsFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const settings = {};
+  const tempoParam = params.get('tempo');
+  const intensityParam = params.get('intensity');
+  const waveformParam = params.get('waveform');
+  const drumsParam = params.get('drums');
+
+  const tempoValue = Number(tempoParam);
+  if (
+    Number.isFinite(tempoValue)
+    && tempoValue >= Number(elements.tempo.min)
+    && tempoValue <= Number(elements.tempo.max)
+  ) {
+    settings.tempo = Math.round(tempoValue);
+  }
+
+  const intensityValue = Number(intensityParam);
+  if (Number.isFinite(intensityValue) && intensityValue >= 0 && intensityValue <= 100) {
+    settings.intensity = Math.round(intensityValue);
+  }
+
+  if (waveformParam && WAVEFORMS.includes(waveformParam)) {
+    settings.waveform = waveformParam;
+  }
+
+  if (typeof drumsParam === 'string') {
+    const normalized = drumsParam.trim().toLowerCase();
+    if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+      settings.drumsEnabled = true;
+    } else if (['0', 'false', 'no', 'off'].includes(normalized)) {
+      settings.drumsEnabled = false;
+    }
+  }
+
+  return settings;
+}
+
+const initialSettings = parseSettingsFromUrl();
+if (initialSettings.tempo !== undefined) {
+  elements.tempo.value = String(initialSettings.tempo);
+}
+if (initialSettings.intensity !== undefined) {
+  elements.intensity.value = String(initialSettings.intensity);
+}
+if (initialSettings.waveform !== undefined) {
+  elements.waveform.value = initialSettings.waveform;
+}
+if (initialSettings.drumsEnabled !== undefined) {
+  elements.drums.checked = initialSettings.drumsEnabled;
+}
+
 const progression = [
   { name: 'Am', chord: [57, 60, 64], bass: 45 },
   { name: 'F', chord: [53, 57, 60], bass: 41 },
@@ -132,10 +186,21 @@ function updateStatus(message) {
   elements.status.textContent = parts.join(' | ');
 }
 
+function syncUrlFromState() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('tempo', String(state.tempo));
+  const intensityPercent = Math.round(Number(elements.intensity.value));
+  url.searchParams.set('intensity', String(Math.max(0, Math.min(100, intensityPercent))));
+  url.searchParams.set('waveform', state.waveform);
+  url.searchParams.set('drums', state.drumsEnabled ? '1' : '0');
+  history.replaceState(null, '', url.toString());
+}
+
 function updateDisplayValues() {
   elements.tempoValue.textContent = `${state.tempo} BPM`;
   elements.intensityValue.textContent = `${Math.round(state.intensity * 100)}%`;
   updateStatus();
+  syncUrlFromState();
 }
 
 function updateMasterVolume() {
@@ -512,11 +577,13 @@ elements.intensity.addEventListener('input', () => {
 elements.waveform.addEventListener('change', () => {
   state.waveform = elements.waveform.value;
   updateStatus();
+  syncUrlFromState();
 });
 
 elements.drums.addEventListener('change', () => {
   state.drumsEnabled = elements.drums.checked;
   updateStatus();
+  syncUrlFromState();
 });
 
 document.addEventListener('visibilitychange', () => {
