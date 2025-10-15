@@ -4,30 +4,33 @@ This document provides guidance for AI agents working on the Synthwave Backgroun
 
 ## Project Overview
 
-This is a self-contained, single-page web application that uses the Web Audio API to generate procedural synthwave music. All the application logic is in `script.js`. The UI is defined in `index.html` and styled by `styles.css`. There are no external dependencies or build steps.
+This is a self-contained, single-page web application that uses the Web Audio API to generate procedural synthwave music. The application logic is modular, with `main.js` as the entry point. The UI is defined in `index.html` and styled by `styles.css`. There are no external dependencies or build steps.
 
 ## Core Architecture & Concepts
 
-The application's logic resides entirely in `script.js`. Understanding these core concepts is key to contributing effectively.
+Understanding these core concepts and the file structure is key to contributing effectively.
 
-### 1. State Management
+### 1. File Structure & Responsibilities
 
-- A single global `state` object holds the entire application state (e.g., `isPlaying`, `tempo`, `intensity`).
-- UI controls in `index.html` update this `state` object through event listeners.
-- The application state is synchronized with the URL query parameters (`syncUrlFromState`, `parseSettingsFromUrl`). This allows sharing links with specific settings.
+- `main.js`: The application's entry point. It manages the global `state` object, contains the main scheduler loop (`schedulerTick`), and orchestrates the other modules.
+- `ui.js`: Handles all DOM interaction, event listeners, and UI updates. It also manages synchronizing the application state with URL query parameters.
+- `config.js`: Contains static data for music generation, such as chord `progressions`, `drumPatterns`, and musical constants like `STEPS_PER_BAR`.
+- `audio.js`: Responsible for setting up the core Web Audio API graph (`setupAudioGraph`), including the `AudioContext`, master gain, compressor, and effect nodes like reverb and delay.
+- `sequencer.js`: Contains the high-level musical logic. The `scheduleStep` function is called for each 16th note to arrange the different instrument parts (`schedulePad`, `scheduleBass`, `scheduleLead`, `scheduleDrums`).
+- `synthesis.js`: Contains the low-level sound design logic. Functions like `triggerSynthVoice`, `triggerKick`, and `triggerSnare` create and configure the oscillators, envelopes, and filters to produce the actual sounds.
 
-### 2. Audio Generation & Scheduling
+### 2. State Management
 
-- **Audio Graph**: The `setupAudioGraph()` function creates the core Web Audio API nodes (e.g., `AudioContext`, `GainNode`, `DynamicsCompressor`, `ConvolverNode` for reverb). The created nodes are stored in the `state.nodes` object.
-- **Scheduler**: A `setInterval` loop (`schedulerTick`) runs every `state.lookaheadMs` milliseconds. It schedules audio events in the near future (`state.scheduleAheadTime`) to ensure precise timing without being affected by main thread blocking.
-- **Sequencing**: The `schedulerTick` calls `scheduleStep()` for each 16th note. `scheduleStep` determines the current chord from the `progression` array and calls functions to schedule individual instrument parts:
-  - `schedulePad()`: Plays long, atmospheric chords.
-  - `scheduleBass()`: Plays the bassline.
-  - `scheduleLead()`: Plays melodic, arpeggiated notes.
-  - `scheduleDrums()`: Triggers drum sounds if enabled.
-- **Sound Synthesis**:
-  - `triggerSynthVoice()` is the generic function for creating melodic sounds (pads, bass, lead). It sets up oscillators, filters, and envelopes.
-  - `triggerKick()`, `triggerSnare()`, and `triggerHat()` generate the drum sounds programmatically.
+- A single global `state` object in `main.js` holds the entire application state (e.g., `isPlaying`, `tempo`, `intensity`).
+- UI controls, managed by `ui.js`, update this `state` object through event listeners.
+- The application state is synchronized with the URL query parameters via functions in `ui.js` (`syncUrlFromState`, `parseSettingsFromUrl`).
+
+### 3. Audio Generation & Scheduling
+
+- **Audio Graph**: `audio.js`'s `setupAudioGraph()` function creates the core Web Audio API nodes. The created nodes are stored in the `state.nodes` object.
+- **Scheduler**: A `setInterval` loop (`schedulerTick` in `main.js`) runs every few milliseconds. It schedules audio events in the near future (`state.scheduleAheadTime`) to ensure precise timing.
+- **Sequencing**: The `schedulerTick` calls `scheduleStep()` from `sequencer.js` for each 16th note. This function then calls other functions in the same file to schedule the bass, lead, pads, and drums based on the selected chord progression and drum pattern.
+- **Sound Synthesis**: The functions in `synthesis.js` (`triggerSynthVoice`, `triggerKick`, etc.) are called by the sequencer to generate the final sounds by creating and connecting oscillators, filters, and gain nodes with specific envelopes.
 
 ## Developer Workflow
 
@@ -36,12 +39,13 @@ The application's logic resides entirely in `script.js`. Understanding these cor
   python3 -m http.server 8000
   ```
 - **Making Changes**:
-  1. Edit `script.js` for logic, `index.html` for structure, or `styles.css` for visuals.
-  2. Refresh the browser to see the changes.
-  3. There is no build process or test suite.
+  1.  Edit the appropriate file based on the new modular structure.
+  2.  Refresh the browser to see the changes.
+  3.  There is no build process or test suite.
 
 ## Key Files
 
-- `script.js`: The heart of the application. Contains all state management, audio synthesis, and scheduling logic.
+- `main.js`: The heart of the application, holding state and the main loop.
+- `sequencer.js` & `synthesis.js`: The core of the audio generation logic.
+- `config.js`: The source for all musical patterns and scales.
 - `index.html`: Defines the UI and user controls.
-- `README.md`: Contains basic setup instructions.
