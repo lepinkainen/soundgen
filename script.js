@@ -1,35 +1,67 @@
 const elements = {
-  toggle: document.getElementById('toggle'),
-  tempo: document.getElementById('tempo'),
-  tempoValue: document.getElementById('tempo-value'),
-  intensity: document.getElementById('intensity'),
-  intensityValue: document.getElementById('intensity-value'),
-  waveform: document.getElementById('waveform'),
-  drums: document.getElementById('drums-enabled'),
-  status: document.getElementById('status'),
+  toggle: document.getElementById("toggle"),
+  tempo: document.getElementById("tempo"),
+  tempoValue: document.getElementById("tempo-value"),
+  intensity: document.getElementById("intensity"),
+  intensityValue: document.getElementById("intensity-value"),
+  waveform: document.getElementById("waveform"),
+  progression: document.getElementById("progression"),
+  drumPattern: document.getElementById("drum-pattern"),
+  drums: document.getElementById("drums-enabled"),
+  status: document.getElementById("status"),
 };
 
-const WAVEFORMS = ['sawtooth', 'square', 'triangle'];
+const WAVEFORMS = ["sawtooth", "square", "triangle"];
+
+function populateControls() {
+  const randomProgression = document.createElement("option");
+  randomProgression.value = "random";
+  randomProgression.textContent = "Random";
+  elements.progression.appendChild(randomProgression);
+
+  Object.keys(progressions).forEach((key) => {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = key;
+    elements.progression.appendChild(option);
+  });
+
+  const randomDrums = document.createElement("option");
+  randomDrums.value = "random";
+  randomDrums.textContent = "Random";
+  elements.drumPattern.appendChild(randomDrums);
+
+  drumPatterns.forEach((pattern, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = pattern.name;
+    elements.drumPattern.appendChild(option);
+  });
+}
 
 function parseSettingsFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const settings = {};
-  const tempoParam = params.get('tempo');
-  const intensityParam = params.get('intensity');
-  const waveformParam = params.get('waveform');
-  const drumsParam = params.get('drums');
+  const tempoParam = params.get("tempo");
+  const intensityParam = params.get("intensity");
+  const waveformParam = params.get("waveform");
+  const drumsParam = params.get("drums");
 
   const tempoValue = Number(tempoParam);
   if (
-    Number.isFinite(tempoValue)
-    && tempoValue >= Number(elements.tempo.min)
-    && tempoValue <= Number(elements.tempo.max)
+    Number.isFinite(tempoValue) &&
+    tempoValue >= Number(elements.tempo.min) &&
+    tempoValue <= Number(elements.tempo.max)
   ) {
     settings.tempo = Math.round(tempoValue);
   }
 
   const intensityValue = Number(intensityParam);
-  if (Number.isFinite(intensityValue) && intensityValue >= 0 && intensityValue <= 100) {
+  if (
+    Number.isFinite(intensityValue) &&
+    intensityValue >= 0 &&
+    intensityValue <= 100
+  ) {
     settings.intensity = Math.round(intensityValue);
   }
 
@@ -37,11 +69,11 @@ function parseSettingsFromUrl() {
     settings.waveform = waveformParam;
   }
 
-  if (typeof drumsParam === 'string') {
+  if (typeof drumsParam === "string") {
     const normalized = drumsParam.trim().toLowerCase();
-    if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+    if (["1", "true", "yes", "on"].includes(normalized)) {
       settings.drumsEnabled = true;
-    } else if (['0', 'false', 'no', 'off'].includes(normalized)) {
+    } else if (["0", "false", "no", "off"].includes(normalized)) {
       settings.drumsEnabled = false;
     }
   }
@@ -63,11 +95,62 @@ if (initialSettings.drumsEnabled !== undefined) {
   elements.drums.checked = initialSettings.drumsEnabled;
 }
 
-const progression = [
-  { name: 'Am', chord: [57, 60, 64], bass: 45 },
-  { name: 'F', chord: [53, 57, 60], bass: 41 },
-  { name: 'C', chord: [60, 64, 67], bass: 48 },
-  { name: 'G', chord: [55, 59, 62], bass: 43 },
+const progressions = {
+  "I-V-vi-IV": [
+    // C-G-Am-F
+    { name: "C", chord: [60, 64, 67], bass: 48 },
+    { name: "G", chord: [55, 59, 62], bass: 43 },
+    { name: "Am", chord: [57, 60, 64], bass: 45 },
+    { name: "F", chord: [53, 57, 60], bass: 41 },
+  ],
+  "vi-IV-I-V": [
+    // Am-F-C-G (The "Axis of Awesome" progression)
+    { name: "Am", chord: [57, 60, 64], bass: 45 },
+    { name: "F", chord: [53, 57, 60], bass: 41 },
+    { name: "C", chord: [60, 64, 67], bass: 48 },
+    { name: "G", chord: [55, 59, 62], bass: 43 },
+  ],
+  "i-VII-VI-V": [
+    // Am-G-F-E
+    { name: "Am", chord: [57, 60, 64], bass: 45 },
+    { name: "G", chord: [55, 59, 62], bass: 43 },
+    { name: "F", chord: [53, 57, 60], bass: 41 },
+    { name: "E", chord: [52, 56, 59], bass: 40 },
+  ],
+  "i-VI-III-VII": [
+    // Am-F-C-G, but thinking in minor key
+    { name: "Am", chord: [57, 60, 64], bass: 45 },
+    { name: "F", chord: [53, 57, 60], bass: 41 },
+    { name: "C", chord: [60, 64, 67], bass: 48 },
+    { name: "G", chord: [55, 59, 62], bass: 43 },
+  ],
+};
+
+const drumPatterns = [
+  {
+    name: "Four on the Floor",
+    kick: [0],
+    snare: [4, 12],
+    hat: [0, 2, 4, 6, 8, 10, 12, 14],
+  },
+  {
+    name: "Classic 80s",
+    kick: [0, 8],
+    snare: [4, 12],
+    hat: [0, 2, 4, 6, 8, 10, 12, 14],
+  },
+  {
+    name: "Syncopated Kick",
+    kick: [0, 7, 8],
+    snare: [4, 12],
+    hat: [0, 2, 4, 6, 8, 10, 12, 14],
+  },
+  {
+    name: "Breakbeat-ish",
+    kick: [0, 6, 10],
+    snare: [4, 12],
+    hat: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+  },
 ];
 
 const keyScale = [57, 59, 60, 62, 64, 65, 67, 69, 71];
@@ -83,6 +166,10 @@ const state = {
   intensity: Number(elements.intensity.value) / 100,
   waveform: elements.waveform.value,
   drumsEnabled: elements.drums.checked,
+  progression:
+    progressions[elements.progression.value] || progressions["vi-IV-I-V"],
+  drumPattern:
+    drumPatterns[Number(elements.drumPattern.value)] || drumPatterns[1],
   nextNoteTime: 0,
   currentStep: 0,
   lookaheadMs: 30,
@@ -119,7 +206,7 @@ function createNoiseBuffer(ctx, duration = 1) {
 function setupAudioGraph() {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtx) {
-    throw new Error('Web Audio API is not supported in this browser.');
+    throw new Error("Web Audio API is not supported in this browser.");
   }
   const audioCtx = new AudioCtx();
   const masterGain = audioCtx.createGain();
@@ -173,27 +260,32 @@ function updateStatus(message) {
     return;
   }
   if (!state.isPlaying) {
-    elements.status.textContent = 'Tap Start to begin.';
+    elements.status.textContent = "Tap Start to begin.";
     return;
   }
   const parts = [
-    'Playing',
+    "Playing",
     `${state.tempo} BPM`,
     `Intensity ${Math.round(state.intensity * 100)}%`,
-    state.drumsEnabled ? 'Drums on' : 'Drums off',
+    state.drumsEnabled ? "Drums on" : "Drums off",
     `Waveform ${state.waveform}`,
   ];
-  elements.status.textContent = parts.join(' | ');
+  elements.status.textContent = parts.join(" | ");
 }
 
 function syncUrlFromState() {
   const url = new URL(window.location.href);
-  url.searchParams.set('tempo', String(state.tempo));
+  url.searchParams.set("tempo", String(state.tempo));
   const intensityPercent = Math.round(Number(elements.intensity.value));
-  url.searchParams.set('intensity', String(Math.max(0, Math.min(100, intensityPercent))));
-  url.searchParams.set('waveform', state.waveform);
-  url.searchParams.set('drums', state.drumsEnabled ? '1' : '0');
-  history.replaceState(null, '', url.toString());
+  url.searchParams.set(
+    "intensity",
+    String(Math.max(0, Math.min(100, intensityPercent)))
+  );
+  url.searchParams.set("waveform", state.waveform);
+  url.searchParams.set("drums", state.drumsEnabled ? "1" : "0");
+  url.searchParams.set("progression", elements.progression.value);
+  url.searchParams.set("drumPattern", elements.drumPattern.value);
+  history.replaceState(null, "", url.toString());
 }
 
 function updateDisplayValues() {
@@ -247,7 +339,7 @@ function triggerSynthVoice({
   voiceGain.gain.setValueAtTime(0, time);
 
   const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
+  filter.type = "lowpass";
   filter.Q.setValueAtTime(filterQ, time);
   filter.frequency.setValueAtTime(filterFreq, time);
 
@@ -278,8 +370,13 @@ function triggerSynthVoice({
   voiceGain.gain.linearRampToValueAtTime(gain, attackEnd);
   const decayEnd = attackEnd + envelope.decay;
   voiceGain.gain.linearRampToValueAtTime(gain * envelope.sustain, decayEnd);
-  const releaseStart = time + Math.max(envelope.attack + envelope.decay, duration);
-  voiceGain.gain.setTargetAtTime(0, releaseStart, Math.max(0.05, envelope.release));
+  const releaseStart =
+    time + Math.max(envelope.attack + envelope.decay, duration);
+  voiceGain.gain.setTargetAtTime(
+    0,
+    releaseStart,
+    Math.max(0.05, envelope.release)
+  );
 
   const stopTime = releaseStart + envelope.release * 3;
   osc1.start(time);
@@ -294,7 +391,7 @@ function triggerKick(time) {
   }
   const ctx = state.audioCtx;
   const osc = ctx.createOscillator();
-  osc.type = 'sine';
+  osc.type = "sine";
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(1, time);
   gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.5);
@@ -305,7 +402,7 @@ function triggerKick(time) {
 
   const click = ctx.createOscillator();
   const clickGain = ctx.createGain();
-  click.type = 'triangle';
+  click.type = "triangle";
   click.frequency.setValueAtTime(200, time);
   clickGain.gain.setValueAtTime(0.2, time);
   clickGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.08);
@@ -326,7 +423,7 @@ function triggerSnare(time) {
   const noise = ctx.createBufferSource();
   noise.buffer = state.nodes.noiseBuffer;
   const noiseFilter = ctx.createBiquadFilter();
-  noiseFilter.type = 'bandpass';
+  noiseFilter.type = "bandpass";
   noiseFilter.frequency.setValueAtTime(1800, time);
   noiseFilter.Q.setValueAtTime(1.2, time);
   const noiseGain = ctx.createGain();
@@ -337,7 +434,7 @@ function triggerSnare(time) {
   noiseGain.connect(state.nodes.masterGain);
 
   const tone = ctx.createOscillator();
-  tone.type = 'triangle';
+  tone.type = "triangle";
   tone.frequency.setValueAtTime(180, time);
   const toneGain = ctx.createGain();
   toneGain.gain.setValueAtTime(0.3, time);
@@ -364,7 +461,7 @@ function triggerHat(time, duration) {
   const noise = ctx.createBufferSource();
   noise.buffer = state.nodes.noiseBuffer;
   const highpass = ctx.createBiquadFilter();
-  highpass.type = 'highpass';
+  highpass.type = "highpass";
   highpass.frequency.setValueAtTime(6000, time);
   highpass.Q.setValueAtTime(0.7, time);
   const gain = ctx.createGain();
@@ -391,7 +488,7 @@ function scheduleBass(stepInBar, time, pattern) {
     midi: pattern.bass + octaveShift,
     time,
     duration,
-    waveform: 'sawtooth',
+    waveform: "sawtooth",
     detuneSpread: 6,
     gain: velocity,
     filterFreq: 420 + intensity * 480,
@@ -446,7 +543,7 @@ function schedulePad(stepInBar, time, pattern) {
       midi: note,
       time,
       duration: chordDuration,
-      waveform: 'triangle',
+      waveform: "triangle",
       detuneSpread: 4 + index * 2,
       gain: 0.08 + index * 0.02,
       filterFreq: 900 + state.intensity * 600,
@@ -460,13 +557,14 @@ function schedulePad(stepInBar, time, pattern) {
 }
 
 function scheduleDrums(stepInBar, time) {
-  if (stepInBar === 0 || (stepInBar === 8 && state.intensity > 0.5)) {
+  const pattern = state.drumPattern;
+  if (pattern.kick.includes(stepInBar)) {
     triggerKick(time);
   }
-  if (stepInBar === 4 || stepInBar === 12) {
+  if (pattern.snare.includes(stepInBar)) {
     triggerSnare(time);
   }
-  if (stepInBar % 2 === 0) {
+  if (pattern.hat.includes(stepInBar)) {
     const probability = 0.5 + state.intensity * 0.4;
     if (Math.random() < probability) {
       triggerHat(time, state.stepDuration * (Math.random() < 0.3 ? 1.4 : 0.9));
@@ -475,9 +573,10 @@ function scheduleDrums(stepInBar, time) {
 }
 
 function scheduleStep(stepIndex, time) {
-  const barIndex = Math.floor(stepIndex / STEPS_PER_BAR) % progression.length;
+  const barIndex =
+    Math.floor(stepIndex / STEPS_PER_BAR) % state.progression.length;
   const stepInBar = stepIndex % STEPS_PER_BAR;
-  const pattern = progression[barIndex];
+  const pattern = state.progression[barIndex];
   scheduleBass(stepInBar, time, pattern);
   schedulePad(stepInBar, time, pattern);
   scheduleLead(stepInBar, time, pattern);
@@ -494,7 +593,7 @@ function schedulerTick() {
   while (state.nextNoteTime < ctx.currentTime + state.scheduleAheadTime) {
     scheduleStep(state.currentStep, state.nextNoteTime);
     state.nextNoteTime += state.stepDuration;
-    const cycleLength = STEPS_PER_BAR * progression.length;
+    const cycleLength = STEPS_PER_BAR * state.progression.length;
     state.currentStep = (state.currentStep + 1) % cycleLength;
   }
 }
@@ -509,7 +608,7 @@ async function startPlayback() {
     await nodes.audioCtx.resume();
   } catch (error) {
     console.error(error);
-    updateStatus('Audio initialization failed. Try a different browser.');
+    updateStatus("Audio initialization failed. Try a different browser.");
     return;
   }
   state.audioCtx = nodes.audioCtx;
@@ -517,10 +616,19 @@ async function startPlayback() {
   state.isPlaying = true;
   state.currentStep = 0;
   state.stepDuration = 60 / state.tempo / 4;
+
+  // Randomly select a progression and drum pattern
+  const progressionKeys = Object.keys(progressions);
+  const randomProgressionKey =
+    progressionKeys[Math.floor(Math.random() * progressionKeys.length)];
+  state.progression = progressions[randomProgressionKey];
+  state.drumPattern =
+    drumPatterns[Math.floor(Math.random() * drumPatterns.length)];
+
   state.nextNoteTime = state.audioCtx.currentTime + 0.1;
   updateMasterVolume();
   updateStatus();
-  elements.toggle.textContent = 'Stop';
+  elements.toggle.textContent = "Stop";
   state.schedulerId = setInterval(schedulerTick, state.lookaheadMs);
 }
 
@@ -529,8 +637,8 @@ async function stopPlayback() {
     return;
   }
   state.isPlaying = false;
-  elements.toggle.textContent = 'Start';
-  updateStatus('Stopping...');
+  elements.toggle.textContent = "Start";
+  updateStatus("Stopping...");
   if (state.schedulerId) {
     clearInterval(state.schedulerId);
     state.schedulerId = null;
@@ -554,7 +662,7 @@ async function stopPlayback() {
   }
 }
 
-elements.toggle.addEventListener('click', () => {
+elements.toggle.addEventListener("click", () => {
   if (state.isPlaying) {
     stopPlayback();
   } else {
@@ -562,40 +670,60 @@ elements.toggle.addEventListener('click', () => {
   }
 });
 
-elements.tempo.addEventListener('input', () => {
+elements.tempo.addEventListener("input", () => {
   state.tempo = Number(elements.tempo.value);
   state.stepDuration = 60 / state.tempo / 4;
+  updateMasterVolume();
   updateDisplayValues();
 });
 
-elements.intensity.addEventListener('input', () => {
+elements.intensity.addEventListener("input", () => {
   state.intensity = Number(elements.intensity.value) / 100;
   updateMasterVolume();
   updateDisplayValues();
 });
 
-elements.waveform.addEventListener('change', () => {
+elements.progression.addEventListener("change", () => {
+  if (state.isPlaying) {
+    // Changing progression requires a restart
+    stopPlayback();
+    startPlayback();
+  }
+  syncUrlFromState();
+});
+
+elements.drumPattern.addEventListener("change", () => {
+  if (state.isPlaying) {
+    // Changing drum pattern requires a restart
+    stopPlayback();
+    startPlayback();
+  }
+  syncUrlFromState();
+});
+
+elements.waveform.addEventListener("change", () => {
   state.waveform = elements.waveform.value;
   updateStatus();
   syncUrlFromState();
 });
 
-elements.drums.addEventListener('change', () => {
+elements.drums.addEventListener("change", () => {
   state.drumsEnabled = elements.drums.checked;
   updateStatus();
   syncUrlFromState();
 });
 
-document.addEventListener('visibilitychange', () => {
+document.addEventListener("visibilitychange", () => {
   if (document.hidden && state.isPlaying) {
     stopPlayback();
   }
 });
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener("beforeunload", () => {
   if (state.isPlaying) {
     stopPlayback();
   }
 });
 
+populateControls();
 updateDisplayValues();
